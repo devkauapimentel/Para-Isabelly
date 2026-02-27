@@ -1,0 +1,38 @@
+/* Custom resets / utilties over Tailwind */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior: none;
+    /* Helps with fake horizontal scroll */
+}
+
+/* Base custom font stack if Tailwind doesn't apply cleanly */
+.bg-gradient-radial {
+    background: radial-gradient(circle at center, var(--tw-gradient-from), var(--tw-gradient-to));
+}
+
+/* Pre-loader glow */
+#pulse-dot {
+    animation: pulseGlow 2s infinite ease-in-out;
+}
+
+@keyframes pulseGlow {
+
+    0%,
+    100% {
+        transform: scale(0.8);
+        box-shadow: 0 0 10px #D4AF37, 0 0 20px #D4AF37;
+        opacity: 0.5;
+    }
+
+    50% {
+        transform: scale(1.2);
+        box-shadow: 0 0 20px #D4AF37, 0 0 40px #D4AF37;
+        opacity: 1;
+    }
+}
+
+/* Optional styling for the fallback CSS flower */
+.css-flower {
+    transition: transform 1s ease-out;
+}

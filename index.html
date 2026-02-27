@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moonflower Symphony</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkBase: '#000000',
+                        darkAccent: '#191970',
+                        gold: '#D4AF37',
+                        pearl: '#F0F0F0',
+                        softWhite: '#E0E0E0'
+                    },
+                    fontFamily: {
+                        playfair: ['"Playfair Display"', 'serif'],
+                        inter: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body
+    class="bg-darkBase text-softWhite font-inter overflow-x-hidden antialiased selection:bg-gold selection:text-darkBase">
+
+    <!-- Pre-loader -->
+    <div id="pre-loader" class="fixed inset-0 z-50 flex items-center justify-center bg-darkBase">
+        <div class="text-center">
+            <div id="pulse-dot" class="w-4 h-4 bg-gold rounded-full mx-auto mb-6 shadow-[0_0_20px_#D4AF37]"></div>
+            <p id="preloader-text"
+                class="text-sm font-light tracking-[0.2em] uppercase text-pearl opacity-0 transition-opacity duration-1000">
+                Desativando a lógica...</p>
+        </div>
+    </div>
+
+    <!-- YouTube IFrame API Container (Hidden) -->
+    <div id="player" class="hidden"></div>
+
+    <!-- Custom Music Player UI (Sticky) -->
+    <div id="custom-player"
+        class="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 opacity-0 pointer-events-none transition-opacity duration-1000">
+        <button id="play-pause-btn"
+            class="w-16 h-16 rounded-full border border-gold/30 flex items-center justify-center text-gold hover:bg-gold/10 hover:border-gold transition-colors backdrop-blur-sm">
+            <!-- Play Icon -->
+            <svg id="icon-play" class="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+            </svg>
+            <!-- Pause Icon -->
+            <svg id="icon-pause" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- Lyrics Container (Sticky) -->
+    <div id="lyrics-container"
+        class="fixed bottom-32 left-0 w-full z-40 px-6 text-center pointer-events-none opacity-0 transition-opacity duration-1000">
+        <p id="current-lyric"
+            class="font-playfair text-xl md:text-3xl lg:text-4xl text-pearl drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
+        </p>
+    </div>
+
+    <!-- Main Container for Horizontal Scroll -->
+    <main id="scroll-container" class="relative w-[500vw] h-screen flex">
+
+        <!-- Background / Parallax Layers -->
+        <div class="fixed inset-0 z-0 pointer-events-none">
+            <!-- Bon Jovi Texture for Section 2 -->
+            <div id="bg-texture" class="absolute inset-0 bg-cover bg-center opacity-0 mix-blend-overlay grayscale"
+                style="background-image: url('assets/img/bonjovi-bg.jpg');"></div>
+            <!-- Dynamic Gradient/Fog -->
+            <div id="bg-fog" class="absolute inset-0 bg-gradient-radial from-darkAccent/20 to-darkBase opacity-50">
+            </div>
+        </div>
+
+        <!-- The Moonflower Element (Fixed/Parallax in center) -->
+        <div id="moonflower-wrapper"
+            class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none w-64 md:w-96 aspect-square flex items-center justify-center">
+            <!-- Fallback glowing orb if image is missing -->
+            <div id="moonflower-glow"
+                class="absolute w-full h-full bg-gold rounded-full blur-[100px] opacity-10 scale-50 transition-all duration-1000">
+            </div>
+            <!-- Replace src with actual spritesheet or leave for CSS manipulation -->
+            <div id="moonflower-flower"
+                class="w-full h-full bg-contain bg-center bg-no-repeat transition-all duration-1000"
+                style="background-image: url('assets/img/flower-spritesheet.png');">
+                <!-- Fallback CSS Flower -->
+                <div
+                    class="css-flower absolute inset-0 text-center flex flex-col items-center justify-center opacity-50 border border-gold/10 rounded-full">
+                    <span class="text-xs text-gold/50 block mb-2">[Moonflower Placeholder]</span>
+                    <span class="text-[10px] text-pearl/30 block px-4 text-center">Adicione
+                        assets/img/flower-spritesheet.png</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 1: Hero (O Enigma) -->
+        <section class="panel w-[100vw] h-screen shrink-0 relative flex items-center justify-center z-20">
+            <div class="text-center px-6 gs-reveal">
+                <h1
+                    class="font-playfair text-5xl md:text-7xl lg:text-8xl text-pearl font-bold tracking-wider drop-shadow-2xl">
+                    A Exceção.</h1>
+            </div>
+        </section>
+
+        <!-- Section 2: A Quebra da Lógica (A Dualidade) -->
+        <section class="panel w-[100vw] h-screen shrink-0 relative flex items-center justify-center z-20">
+            <div class="max-w-3xl px-8 flex flex-col gap-16 md:gap-24 text-center md:text-left gs-reveal-staggered">
+                <p class="text-xl md:text-2xl font-light leading-relaxed staggered-text">
+                    Eu sou um cara racional. Gosto que as coisas façam sentido. Mas aí a gente se cruza, e a minha
+                    tentativa de entender tudo simplesmente tropeça no absurdo que é você.
+                </p>
+                <p class="text-xl md:text-2xl font-light leading-relaxed md:text-right staggered-text">
+                    Você tenta vestir essa armadura de gelo, se diz fria, mas é a mesma mulher que me dá um esporro por
+                    causa do ar-condicionado só pra cuidar de mim. E é aí que a minha lógica desmorona.
+                </p>
+                <p class="text-xl md:text-2xl font-light leading-relaxed staggered-text">
+                    Eu reparo em detalhes que talvez você ache que passam batido. O caos perfeito do seu cabelo, a
+                    imensidão que são os seus olhos. Você tem uma energia absurda de quem resolveria a vida sozinha, mas
+                    que no fundo merece ser cuidada.
+                </p>
+            </div>
+        </section>
+
+        <!-- Section 3: A Sintonia (O Desejo) -->
+        <section class="panel w-[100vw] h-screen shrink-0 relative flex items-center justify-center z-20">
+            <div class="max-w-2xl px-8 text-center gs-reveal">
+                <p class="text-2xl md:text-3xl font-playfair italic leading-relaxed text-pearl">
+                    "Tem uma intensidade em você que me lembra o bom e velho rock."
+                </p>
+                <div class="h-8 md:h-12"></div>
+                <p class="text-lg md:text-xl font-light leading-relaxed text-softWhite/80">
+                    Sabe o que não sai da minha cabeça? A ideia de materializar o que a gente tem na voz. Trocar essa
+                    tela de celular por uma mesa de um pub, pedir um vinho num lugar chique, te olhar nos olhos e
+                    decifrar cada linha dessa sua dualidade pessoalmente.
+                </p>
+            </div>
+        </section>
+
+        <!-- Section 4: A Sinfonia (A Música) -->
+        <section class="panel w-[100vw] h-screen shrink-0 relative flex flex-col items-center justify-center z-20">
+            <div class="text-center px-6 mb-32 gs-reveal">
+                <p class="text-3xl md:text-4xl font-playfair text-gold mb-6">A Sinfonia.</p>
+                <p class="text-xl md:text-2xl font-light text-softWhite/90">
+                    Dê o play. Essa trilha sonora diz o que a lógica não consegue explicar.
+                </p>
+            </div>
+            <!-- The music player button logic will make it visible here -->
+        </section>
+
+        <!-- Section 5: O Encontro (Assinatura) -->
+        <section class="panel w-[100vw] h-screen shrink-0 relative flex items-center justify-center z-20">
+            <div class="text-center px-6 gs-reveal opacity-0" id="final-signature">
+                <p class="text-sm md:text-base font-light tracking-[0.3em] uppercase text-gold/80 mb-4">Com admiração
+                    real,</p>
+                <p class="font-playfair text-4xl md:text-6xl text-pearl">Kauã Pimentel.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- GSAP & ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <!-- YouTube Iframe API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+
+    <!-- Main Logic -->
+    <script src="js/main.js"></script>
+</body>
+
+</html>
