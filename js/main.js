@@ -122,44 +122,42 @@ function initScrollAnimations(isMobile) {
     const lyricsContainer = document.getElementById('lyrics-container');
     const youtubeContainer = document.getElementById('youtube-player-container');
 
-    // Use visibility instead of display:none to avoid DOM reflow that re-triggers snap
+    // YouTube container: keep in DOM but invisible, no reflow
     if (youtubeContainer) {
-        youtubeContainer.style.position = 'fixed';
-        youtubeContainer.style.width = '0';
-        youtubeContainer.style.height = '0';
-        youtubeContainer.style.overflow = 'hidden';
-        youtubeContainer.style.opacity = '0';
-        youtubeContainer.style.pointerEvents = 'none';
+        youtubeContainer.style.cssText = 'position:fixed;width:0;height:0;overflow:hidden;opacity:0;pointer-events:none;';
     }
 
-    // Helper to show player UI
+    // Set initial state via GSAP (not CSS classes) so ScrollTrigger never recalculates
+    gsap.set(musicControls, { autoAlpha: 0, pointerEvents: 'none' });
+    gsap.set(lyricsContainer, { autoAlpha: 0, pointerEvents: 'none' });
+
+    // Pure GSAP animations — NO classList changes = NO reflow = NO snap loop
     function showPlayerUI() {
-        musicControls.classList.remove('opacity-0', 'pointer-events-none');
-        lyricsContainer.classList.remove('opacity-0', 'pointer-events-none');
+        gsap.to(musicControls, { autoAlpha: 1, pointerEvents: 'auto', duration: 0.8, overwrite: true });
+        gsap.to(lyricsContainer, { autoAlpha: 1, pointerEvents: 'auto', duration: 0.8, overwrite: true });
     }
 
-    // Helper to hide player UI
     function hidePlayerUI() {
-        musicControls.classList.add('opacity-0', 'pointer-events-none');
-        lyricsContainer.classList.add('opacity-0', 'pointer-events-none');
+        gsap.to(musicControls, { autoAlpha: 0, pointerEvents: 'none', duration: 0.5, overwrite: true });
+        gsap.to(lyricsContainer, { autoAlpha: 0, pointerEvents: 'none', duration: 0.5, overwrite: true });
     }
 
     // Show controls when entering Frame 9
     ScrollTrigger.create({
         trigger: frame9,
         containerAnimation: scrollTween,
-        start: "left 50%",
-        onEnter: () => showPlayerUI(),
-        onLeaveBack: () => hidePlayerUI()
+        start: "left 60%",
+        onEnter: showPlayerUI,
+        onLeaveBack: hidePlayerUI
     });
 
-    // Hide controls when entering Frame 10
+    // Hide controls when leaving Frame 9 forward (entering Frame 10)
     ScrollTrigger.create({
         trigger: frame10,
         containerAnimation: scrollTween,
-        start: "left 50%",
-        onEnter: () => hidePlayerUI(),
-        onLeaveBack: () => showPlayerUI()
+        start: "left 60%",
+        onEnter: hidePlayerUI,
+        onLeaveBack: showPlayerUI
     });
 }
 
