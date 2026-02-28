@@ -2,37 +2,52 @@ document.addEventListener('DOMContentLoaded', () => {
     // Register GSAP ScrollTrigger
     gsap.registerPlugin(ScrollTrigger);
 
-    // Normalize scroll for mobile
-    ScrollTrigger.normalizeScroll(true);
+    // Mobile-optimized scroll config
+    const isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || ('ontouchstart' in window);
     ScrollTrigger.config({ ignoreMobileResize: true });
 
-    initScrollAnimations();
+    // Only normalizeScroll on mobile to capture touch events for horizontal scrolling
+    if (isMobile) {
+        ScrollTrigger.normalizeScroll({
+            allowNestedScroll: false,
+            type: "touch,pointer"
+        });
+    }
+
+    initScrollAnimations(isMobile);
     initHoldToUnlock();
-    initInteractiveElements();
+    initInteractiveElements(isMobile);
 });
 
 // ===== 1. GSAP Scroll Animations =====
 let scrollTween;
 
-function initScrollAnimations() {
+function initScrollAnimations(isMobile) {
     const frames = gsap.utils.toArray('.frame');
     const ambientLight = document.getElementById('ambient-light');
     const scrollIndicator = document.getElementById('scroll-indicator');
     const horizontalContainer = document.getElementById('horizontal-container');
+    const mainScroll = document.getElementById('main-scroll');
+
+    // Ensure touch-action allows vertical swipe to drive our horizontal scroll
+    if (isMobile && mainScroll) {
+        mainScroll.style.touchAction = 'pan-y';
+    }
 
     // Horizontal Scroll Tween
+    // scrub: lower = more responsive on mobile
     scrollTween = gsap.to(frames, {
         xPercent: -100 * (frames.length - 1),
         ease: "none",
         scrollTrigger: {
             trigger: "#main-scroll",
             pin: true,
-            scrub: 1,
+            scrub: isMobile ? 0.4 : 1,
             snap: {
                 snapTo: 1 / (frames.length - 1),
-                duration: { min: 0.3, max: 0.6 },
-                delay: 0.05,
-                ease: "power2.inOut"
+                duration: isMobile ? { min: 0.2, max: 0.5 } : { min: 0.3, max: 0.6 },
+                delay: isMobile ? 0.1 : 0.05,
+                ease: "power1.inOut"
             },
             end: () => "+=" + horizontalContainer.offsetWidth
         }
@@ -99,11 +114,13 @@ function initScrollAnimations() {
         }
     });
 
-    // Music Player controls visibility (Show around Frame 9)
+    // Music Player controls visibility (Show ONLY on Frame 9)
     const frame9 = document.getElementById('frame-9');
+    const frame10 = document.getElementById('frame-10');
     const musicControls = document.getElementById('music-controls');
     const lyricsContainer = document.getElementById('lyrics-container');
 
+    // Show controls when entering Frame 9
     ScrollTrigger.create({
         trigger: frame9,
         containerAnimation: scrollTween,
@@ -117,10 +134,25 @@ function initScrollAnimations() {
             lyricsContainer.classList.add('opacity-0', 'pointer-events-none');
         }
     });
+
+    // Hide controls when entering Frame 10
+    ScrollTrigger.create({
+        trigger: frame10,
+        containerAnimation: scrollTween,
+        start: "left 50%",
+        onEnter: () => {
+            musicControls.classList.add('opacity-0', 'pointer-events-none');
+            lyricsContainer.classList.add('opacity-0', 'pointer-events-none');
+        },
+        onLeaveBack: () => {
+            musicControls.classList.remove('opacity-0', 'pointer-events-none');
+            lyricsContainer.classList.remove('opacity-0', 'pointer-events-none');
+        }
+    });
 }
 
 // ===== 1.5. Interactive Elements (Cursor & Flower) =====
-function initInteractiveElements() {
+function initInteractiveElements(isMobile) {
     const cursor = document.getElementById('thermal-cursor');
     const mainFlower = document.getElementById('main-flower');
     let hasMoved = false;
@@ -131,11 +163,17 @@ function initInteractiveElements() {
     let cursorX = mouseX;
     let cursorY = mouseY;
 
+    // Hide thermal cursor on mobile to avoid interference
+    if (isMobile && cursor) {
+        cursor.style.display = 'none';
+    }
+
     // Set initial position for GSAP
     if (cursor) {
         gsap.set(cursor, { xPercent: -50, yPercent: -50 });
     }
 
+    // Mouse: desktop only
     window.addEventListener('mousemove', (e) => {
         mouseX = e.clientX;
         mouseY = e.clientY;
@@ -145,16 +183,17 @@ function initInteractiveElements() {
         }
     });
 
+    // Touch: passive listener so it NEVER blocks scrolling
     window.addEventListener('touchmove', (e) => {
         if (e.touches.length > 0) {
             mouseX = e.touches[0].clientX;
             mouseY = e.touches[0].clientY;
-            if (!hasMoved && cursor) {
+            if (!hasMoved && !isMobile && cursor) {
                 hasMoved = true;
                 gsap.to(cursor, { opacity: 1, duration: 2 });
             }
         }
-    });
+    }, { passive: true });
 
     // Animate cursor and flower on tick
     gsap.ticker.add(() => {

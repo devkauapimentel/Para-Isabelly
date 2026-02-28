@@ -11,6 +11,23 @@ body {
     background-color: #050505;
     color: #EAEAEA;
     overflow-x: hidden;
+    /* Prevent pull-to-refresh & overscroll bounce on mobile */
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Mobile touch optimizations */
+#main-scroll {
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: none;
+}
+
+/* Hide thermal cursor on touch devices — it interferes with swipe */
+@media (hover: none) and (pointer: coarse) {
+    #thermal-cursor {
+        display: none !important;
+    }
 }
 
 /* Frame definitions */
