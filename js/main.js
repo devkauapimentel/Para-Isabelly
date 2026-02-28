@@ -120,12 +120,6 @@ function initScrollAnimations(isMobile) {
     const frame10 = document.getElementById('frame-10');
     const musicControls = document.getElementById('music-controls');
     const lyricsContainer = document.getElementById('lyrics-container');
-    const youtubeContainer = document.getElementById('youtube-player-container');
-
-    // YouTube container: keep in DOM but invisible, no reflow
-    if (youtubeContainer) {
-        youtubeContainer.style.cssText = 'position:fixed;width:0;height:0;overflow:hidden;opacity:0;pointer-events:none;';
-    }
 
     // Set initial state via GSAP (not CSS classes) so ScrollTrigger never recalculates
     gsap.set(musicControls, { autoAlpha: 0, pointerEvents: 'none' });
@@ -354,8 +348,8 @@ const lyrics = [
 
 function onYouTubeIframeAPIReady() {
     player = new YT.Player('youtube-player-container', {
-        height: '0',
-        width: '0',
+        height: '1',
+        width: '1',
         videoId: 'me87-0uZeSA',
         playerVars: {
             'playsinline': 1,
@@ -363,7 +357,9 @@ function onYouTubeIframeAPIReady() {
             'disablekb': 1,
             'fs': 0,
             'rel': 0,
-            'modestbranding': 1
+            'modestbranding': 1,
+            'enablejsapi': 1,
+            'origin': window.location.origin
         },
         events: {
             'onReady': onPlayerReady,
@@ -373,14 +369,24 @@ function onYouTubeIframeAPIReady() {
 }
 
 function onPlayerReady(event) {
+    // Player is ready — attach click handler directly for iOS compatibility
+    // iOS requires playVideo() to be called inside a direct user gesture (click/touch)
     const playPauseBtn = document.getElementById('play-pause-btn');
 
-    playPauseBtn.addEventListener('click', () => {
+    function togglePlay() {
+        if (!player || !player.playVideo) return;
         if (!isPlaying) {
             player.playVideo();
         } else {
             player.pauseVideo();
         }
+    }
+
+    // Use both click AND touchend for maximum iOS compatibility
+    playPauseBtn.addEventListener('click', togglePlay);
+    playPauseBtn.addEventListener('touchend', (e) => {
+        e.preventDefault(); // Prevent double-fire with click
+        togglePlay();
     });
 }
 
