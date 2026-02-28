@@ -42,11 +42,12 @@ function initScrollAnimations(isMobile) {
         scrollTrigger: {
             trigger: "#main-scroll",
             pin: true,
-            scrub: isMobile ? 0.4 : 1,
+            scrub: isMobile ? 0.5 : 1,
             snap: {
                 snapTo: 1 / (frames.length - 1),
-                duration: isMobile ? { min: 0.2, max: 0.5 } : { min: 0.3, max: 0.6 },
-                delay: isMobile ? 0.1 : 0.05,
+                directional: true,
+                duration: isMobile ? { min: 0.3, max: 0.6 } : { min: 0.3, max: 0.6 },
+                delay: isMobile ? 0.25 : 0.1,
                 ease: "power1.inOut"
             },
             end: () => "+=" + horizontalContainer.offsetWidth
@@ -121,18 +122,26 @@ function initScrollAnimations(isMobile) {
     const lyricsContainer = document.getElementById('lyrics-container');
     const youtubeContainer = document.getElementById('youtube-player-container');
 
+    // Use visibility instead of display:none to avoid DOM reflow that re-triggers snap
+    if (youtubeContainer) {
+        youtubeContainer.style.position = 'fixed';
+        youtubeContainer.style.width = '0';
+        youtubeContainer.style.height = '0';
+        youtubeContainer.style.overflow = 'hidden';
+        youtubeContainer.style.opacity = '0';
+        youtubeContainer.style.pointerEvents = 'none';
+    }
+
     // Helper to show player UI
     function showPlayerUI() {
         musicControls.classList.remove('opacity-0', 'pointer-events-none');
         lyricsContainer.classList.remove('opacity-0', 'pointer-events-none');
-        if (youtubeContainer) youtubeContainer.classList.remove('hidden');
     }
 
     // Helper to hide player UI
     function hidePlayerUI() {
         musicControls.classList.add('opacity-0', 'pointer-events-none');
         lyricsContainer.classList.add('opacity-0', 'pointer-events-none');
-        if (youtubeContainer) youtubeContainer.classList.add('hidden');
     }
 
     // Show controls when entering Frame 9
