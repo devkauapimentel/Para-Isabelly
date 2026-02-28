@@ -119,20 +119,29 @@ function initScrollAnimations(isMobile) {
     const frame10 = document.getElementById('frame-10');
     const musicControls = document.getElementById('music-controls');
     const lyricsContainer = document.getElementById('lyrics-container');
+    const youtubeContainer = document.getElementById('youtube-player-container');
+
+    // Helper to show player UI
+    function showPlayerUI() {
+        musicControls.classList.remove('opacity-0', 'pointer-events-none');
+        lyricsContainer.classList.remove('opacity-0', 'pointer-events-none');
+        if (youtubeContainer) youtubeContainer.classList.remove('hidden');
+    }
+
+    // Helper to hide player UI
+    function hidePlayerUI() {
+        musicControls.classList.add('opacity-0', 'pointer-events-none');
+        lyricsContainer.classList.add('opacity-0', 'pointer-events-none');
+        if (youtubeContainer) youtubeContainer.classList.add('hidden');
+    }
 
     // Show controls when entering Frame 9
     ScrollTrigger.create({
         trigger: frame9,
         containerAnimation: scrollTween,
         start: "left 50%",
-        onEnter: () => {
-            musicControls.classList.remove('opacity-0', 'pointer-events-none');
-            lyricsContainer.classList.remove('opacity-0', 'pointer-events-none');
-        },
-        onLeaveBack: () => {
-            musicControls.classList.add('opacity-0', 'pointer-events-none');
-            lyricsContainer.classList.add('opacity-0', 'pointer-events-none');
-        }
+        onEnter: () => showPlayerUI(),
+        onLeaveBack: () => hidePlayerUI()
     });
 
     // Hide controls when entering Frame 10
@@ -140,14 +149,8 @@ function initScrollAnimations(isMobile) {
         trigger: frame10,
         containerAnimation: scrollTween,
         start: "left 50%",
-        onEnter: () => {
-            musicControls.classList.add('opacity-0', 'pointer-events-none');
-            lyricsContainer.classList.add('opacity-0', 'pointer-events-none');
-        },
-        onLeaveBack: () => {
-            musicControls.classList.remove('opacity-0', 'pointer-events-none');
-            lyricsContainer.classList.remove('opacity-0', 'pointer-events-none');
-        }
+        onEnter: () => hidePlayerUI(),
+        onLeaveBack: () => showPlayerUI()
     });
 }
 
