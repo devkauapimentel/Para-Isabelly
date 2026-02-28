@@ -1,38 +1,123 @@
-/* Custom resets / utilties over Tailwind */
+/* css/style.css */
+
+/* Custom Smooth Scrolling for GSAP pins */
+html {
+    scroll-behavior: auto !important;
+    /* Let GSAP handle the smoothness if pinning, otherwise normal */
+}
+
+/* Base resets & typography */
 body {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    overscroll-behavior: none;
-    /* Helps with fake horizontal scroll */
+    background-color: #050505;
+    color: #EAEAEA;
+    overflow-x: hidden;
 }
 
-/* Base custom font stack if Tailwind doesn't apply cleanly */
-.bg-gradient-radial {
-    background: radial-gradient(circle at center, var(--tw-gradient-from), var(--tw-gradient-to));
+/* Frame definitions */
+.frame {
+    width: 100vw;
+    height: 100vh;
+    flex: 0 0 100vw;
+    /* Removed padding top to ensure perfect centering in min-h-screen */
 }
 
-/* Pre-loader glow */
-#pulse-dot {
-    animation: pulseGlow 2s infinite ease-in-out;
+#horizontal-container {
+    display: flex;
+    flex-wrap: nowrap;
+    width: fit-content;
+    height: 100vh;
 }
 
-@keyframes pulseGlow {
+/* Blur text reveal effect for GSAP */
+.blur-text {
+    opacity: 0;
+    filter: blur(10px);
+    transform: translateY(20px) scale(0.95);
+    will-change: opacity, filter, transform;
+}
+
+/* Disable selection on the hold button */
+#hold-button {
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+}
+
+/* Pulse animation for the core indicator */
+@keyframes softPulse {
 
     0%,
     100% {
-        transform: scale(0.8);
-        box-shadow: 0 0 10px #D4AF37, 0 0 20px #D4AF37;
-        opacity: 0.5;
+        transform: scale(1);
+        opacity: 0.8;
     }
 
     50% {
-        transform: scale(1.2);
-        box-shadow: 0 0 20px #D4AF37, 0 0 40px #D4AF37;
-        opacity: 1;
+        transform: scale(1.5);
+        opacity: 0.4;
     }
 }
 
-/* Optional styling for the fallback CSS flower */
-.css-flower {
-    transition: transform 1s ease-out;
+#hold-flower {
+    animation: softPulse 2s infinite ease-in-out;
+}
+
+/* The svg circle progress bar */
+#progress-circle {
+    transition: stroke-dashoffset 0.1s linear, opacity 0.3s ease;
+}
+
+/* Glow effect when unlocked */
+.unlocked-glow {
+    box-shadow: 0 0 40px 10px rgba(212, 175, 55, 0.4);
+    border-color: rgba(212, 175, 55, 0.8) !important;
+}
+
+/* Subtle continuous floating & rotation for Hero flower */
+@keyframes floatSlow {
+    0% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-25px) rotate(8deg);
+    }
+
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+}
+
+.animate-float-slow {
+    animation: floatSlow 8s ease-in-out infinite;
+}
+
+/* Embers / Particles for the Romantic Pub Sequence */
+.ember {
+    position: absolute;
+    bottom: -10px;
+    background: radial-gradient(circle, rgba(255, 165, 0, 0.8) 0%, rgba(255, 69, 0, 0.4) 50%, rgba(0, 0, 0, 0) 100%);
+    border-radius: 50%;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    animation: floatUp var(--duration) ease-in infinite;
+}
+
+@keyframes floatUp {
+    0% {
+        transform: translateY(0) scale(1) translateX(0);
+        opacity: 0;
+    }
+
+    10% {
+        opacity: var(--max-opacity);
+    }
+
+    90% {
+        opacity: var(--max-opacity);
+    }
+
+    100% {
+        transform: translateY(-100vh) scale(0.5) translateX(var(--drift));
+        opacity: 0;
+    }
 }
